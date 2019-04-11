@@ -204,6 +204,9 @@ public class EasyStateView extends FrameLayout {
             showAlpha(state, showView, currentView);
         } else {
             currentView.setVisibility(GONE);
+            if(showView.getAlpha() == 0){
+                showView.setAlpha(1f);
+            }
             showView.setVisibility(VISIBLE);
             mCurrentState = state;
             isAniming = false;
