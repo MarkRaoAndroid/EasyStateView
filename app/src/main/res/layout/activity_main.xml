@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
+        android:text="选择状态 View 类型:"/>
+    <Spinner
+        android:id="@+id/spinner_state_view"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        tools:entries="@array/spinner"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
+        android:text="选择动画类型:"/>
+    <RadioGroup
+        android:id="@+id/radio_animation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/use_anima"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="使用动画"/>
+        <RadioButton
+            android:id="@+id/no_anima"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="不使用动画"/>
+
+    </RadioGroup>
+    <Button
+        android:id="@+id/btn_view_state"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="切换状态" />
+    <com.rzj.view.EasyStateView
+        android:id="@+id/state_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:esv_emptyView="@layout/state_empty"
+        app:esv_errorDataView="@layout/state_data_error"
+        app:esv_errorNetView="@layout/state_net_error"
+        app:esv_loadingView="@layout/state_loading"
+        app:esv_use_anim="true"
+        app:esv_viewState="loading">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="内容" />
+
+    </com.rzj.view.EasyStateView>
+
+</LinearLayout>

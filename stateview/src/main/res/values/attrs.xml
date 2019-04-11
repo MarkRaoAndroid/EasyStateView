@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="EasyStateView">
+
+        // 是否使用默认动画过渡
+        <attr name="esv_set_animation" format="boolean" />
+
+        // 加载动画 View
+        <attr name="esv_loadingView" format="reference" />
+
+        // 数据异常，加载失败 View
+        <attr name="esv_errorDataView" format="reference" />
+
+        // 网络异常 View
+        <attr name="esv_errorNetView" format="reference" />
+
+        // 空白页面 View
+        <attr name="esv_emptyView" format="reference" />
+
+        // 设置当前显示的 viewState
+        <attr name="esv_viewState" format="enum">
+            <enum name="content" value="0" />
+            <enum name="loading" value="-1" />
+            <enum name="error_data" value="-2" />
+            <enum name="error_net" value="-3" />
+            <enum name="empty" value="-4" />
+        </attr>
+
+    </declare-styleable>
+
+</resources>

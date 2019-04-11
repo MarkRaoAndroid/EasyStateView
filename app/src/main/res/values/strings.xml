@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">EasyStateView</string>
+    <string-array name="spinner">
+        <item>emptyView</item>
+        <item>errorDataView</item>
+        <item>errorNetView</item>
+        <item>loadingView</item>
+        <item>contentView</item>
+        <item>俞飞鸿</item>
+        <item>迪丽热巴</item>
+    </string-array>
+</resources>
