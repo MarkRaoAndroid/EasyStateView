@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EasyStateView extends FrameLayout {
 
@@ -39,7 +41,8 @@ public class EasyStateView extends FrameLayout {
     // View 的 Tag 标签值
     private static final int VIEW_TAG = -5;
     // 用来存放 View
-    private ArrayList<View> mViews;
+    private HashMap<Integer, View> mViews;
+    // View Tag 对应的下标缓存
     // 是否使用过渡动画
     private boolean mUseAnim;
     // 是否处于动画中
@@ -53,6 +56,10 @@ public class EasyStateView extends FrameLayout {
 
     public interface StateViewListener {
         void onStateChanged(int state);
+    }
+
+    public void setStateChangedListener(StateViewListener listener) {
+        this.mListener = listener;
     }
 
     public EasyStateView(Context context) {
@@ -72,34 +79,29 @@ public class EasyStateView extends FrameLayout {
         mContext = context;
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.EasyStateView);
         mCurrentState = typedArray.getInt(R.styleable.EasyStateView_esv_viewState, VIEW_CONTENT);
-        Log.e("init", getChildCount() + "  " + mCurrentState);
-        mViews = new ArrayList<>();
+        mViews = new HashMap<>();
         int emptyResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_emptyView, VIEW_TAG);
         if (emptyResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(emptyResId, this, false);
-            view.setTag(VIEW_EMPTY);
-            mViews.add(view);
+            addViewToHash(view, VIEW_EMPTY);
             addViewInLayout(view, -1, view.getLayoutParams());
         }
         int errorDataResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_errorDataView, VIEW_TAG);
         if (errorDataResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(errorDataResId, this, false);
-            view.setTag(VIEW_ERROR_DATA);
-            mViews.add(view);
+            addViewToHash(view, VIEW_ERROR_DATA);
             addViewInLayout(view, -1, view.getLayoutParams());
         }
         int errorNetResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_errorNetView, VIEW_TAG);
         if (errorNetResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(errorNetResId, this, false);
-            view.setTag(VIEW_ERROR_NET);
-            mViews.add(view);
+            addViewToHash(view, VIEW_ERROR_NET);
             addViewInLayout(view, -1, view.getLayoutParams());
         }
         int loadingResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_loadingView, VIEW_TAG);
         if (loadingResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(loadingResId, this, false);
-            view.setTag(VIEW_LOADING);
-            mViews.add(view);
+            addViewToHash(view, VIEW_LOADING);
             addViewInLayout(view, -1, view.getLayoutParams());
         }
         mUseAnim = typedArray.getBoolean(R.styleable.EasyStateView_esv_use_anim, true);
@@ -109,9 +111,9 @@ public class EasyStateView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        for (View view : mViews) {
-            if ((Integer) view.getTag() != mCurrentState) {
-                view.setVisibility(GONE);
+        for (Map.Entry<Integer, View> entry : mViews.entrySet()) {
+            if (entry.getKey() != mCurrentState) {
+                entry.getValue().setVisibility(GONE);
             }
         }
     }
@@ -122,12 +124,24 @@ public class EasyStateView extends FrameLayout {
         super.addView(child);
     }
 
+    private boolean isContentView(View child) {
+        if (!isAddContent && null != child
+                && null == child.getTag()) {
+            return true;
+        }
+        return false;
+    }
+
     private void addContentV(View child) {
         if (isContentView(child)) {
-            child.setTag(VIEW_CONTENT);
-            mViews.add(child);
+            addViewToHash(child, VIEW_CONTENT);
             isAddContent = true;
         }
+    }
+
+    private void addViewToHash(View child, int viewTag) {
+        child.setTag(viewTag);
+        mViews.put(viewTag, child);
     }
 
     @Override
@@ -164,14 +178,6 @@ public class EasyStateView extends FrameLayout {
     protected boolean addViewInLayout(View child, int index, ViewGroup.LayoutParams params, boolean preventRequestLayout) {
         addContentV(child);
         return super.addViewInLayout(child, index, params, preventRequestLayout);
-    }
-
-    private boolean isContentView(View child) {
-        if (!isAddContent && null != child
-                && null == child.getTag()) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -252,12 +258,7 @@ public class EasyStateView extends FrameLayout {
         if (state < VIEW_TAG) {
             throw new RuntimeException("ViewState 不在目标范围");
         }
-        for (View view : mViews) {
-            if ((Integer) view.getTag() == state) {
-                return view;
-            }
-        }
-        return null;
+        return mViews.get(state);
     }
 
     public void addUserView(int state, int layId) {
@@ -275,10 +276,9 @@ public class EasyStateView extends FrameLayout {
         if (null == view && layId != -1) {
             view = LayoutInflater.from(mContext).inflate(layId, this, false);
         }
-        view.setTag(state);
         view.setVisibility(GONE);
         addViewInLayout(view, -1, view.getLayoutParams());
-        mViews.add(view);
+        addViewToHash(view, state);
     }
 
 }

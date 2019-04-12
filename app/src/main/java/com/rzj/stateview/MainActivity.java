@@ -9,13 +9,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.rzj.view.EasyStateView;
 import com.rzj.view.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EasyStateView.StateViewListener {
 
-    private com.rzj.view.EasyStateView  mStateView;
+    private com.rzj.view.EasyStateView mStateView;
     private Button mBtn;
     private Spinner mSpinner;
     private RadioGroup mRadioAnimation;
@@ -41,22 +42,22 @@ public class MainActivity extends AppCompatActivity {
         mRadioAnimation.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.use_anima){
+                if (checkedId == R.id.use_anima) {
                     mStateView.setUseAnim(true);
-                }else {
+                } else {
                     mStateView.setUseAnim(false);
                 }
             }
         });
         //适配器
-        ArrayAdapter  arrAdapter= new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+        ArrayAdapter arrAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
                 getResources().getStringArray(R.array.spinner));
         //设置样式
         arrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
+                switch (position) {
                     case 0:
                         mStateId = EasyStateView.VIEW_EMPTY;
                         break;
@@ -98,5 +99,11 @@ public class MainActivity extends AppCompatActivity {
         mStateView.addUserView(YFH, R.layout.state_yfh);
         View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.state_dlrb, mStateView, false);
         mStateView.addUserView(DLRB, view);
+        mStateView.setStateChangedListener(this);
+    }
+
+    @Override
+    public void onStateChanged(int state) {
+        Toast.makeText(MainActivity.this, String.valueOf(state), Toast.LENGTH_LONG).show();
     }
 }
