@@ -1,7 +1,10 @@
+[![OSL](https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D500/sign=f568d2e4f91fbe09185ec3145b610c30/5882b2b7d0a20cf4bf0e134d7d094b36adaf9982.jpg)](https://www.jianshu.com/u/a5102f480695)
+#### 点击热巴进入我的博客
+
 # EasyStateView
 
 ![Image text](https://upload-images.jianshu.io/upload_images/3027456-cbc32b9ffcd7f193.gif?imageMogr2/auto-orient/strip)
-<br>##控件使用示例
+## 控件使用示例
 ```
   <com.rzj.view.EasyStateView
         android:id="@+id/state_view"
@@ -69,6 +72,6 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
     }
 }
 ```
-文档地址：
-Control description address：
+### 文档地址：<br>
+### Control description address：<br>
 https://www.jianshu.com/p/eaf71002e38f
