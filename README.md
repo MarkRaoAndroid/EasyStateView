@@ -31,7 +31,7 @@
 <br>3，数据异常( 数据异常指原本应该是有数据，但是服务器返回了错误的、不符合格式的数据 ) View
 <br>4，网络异常 View
 <br>5，数据为空 View
-也可以监听 View 状态的变化
+<br>也可以监听 View 状态的变化
 ```
 public class MainActivity extends AppCompatActivity implements EasyStateView.StateViewListener {
 
