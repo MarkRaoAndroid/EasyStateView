@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.novoda.bintray-release'
 android {
 
     compileSdkVersion 28
@@ -23,9 +23,9 @@ android {
 
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:28.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -33,13 +33,13 @@ dependencies {
 
 }
 
-apply plugin: 'com.novoda.bintray-release'
 publish {
-    userOrg = 'markraostudio' // 改成你在 bintray 上注册的用户名
-    groupId = 'com.rzj' // 改成你的包名（影响别人引用的第一段）
-    artifactId = 'easystateview' // 改成你的 Library 名字（影响别人引用的第二段）
-    publishVersion = '1.0.0' // 版本号 （影响别人引用的第三段）
-    desc = 'a android state view'
-    website = 'https://github.com/MarkRaoAndroid'
+    repoName = 'MyMaven'//远程仓库名字,不指明，默认是上传到maven
+    userOrg = 'markraostudio'        //bintray.com用户名
+    groupId = 'com.rzj'    //jcenter上的路径
+    artifactId = 'EasyStateView'   //项目名称
+    publishVersion = '1.0.0'//版本号
+    desc = 'desc'//描述，自由填写
+    website = 'https://github.com/MarkRaoAndroid' // 网址，自由填写
 }
 
