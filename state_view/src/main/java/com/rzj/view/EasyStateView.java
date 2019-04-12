@@ -3,26 +3,16 @@ package com.rzj.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
-import android.support.annotation.IntDef;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.rzj.stateview.R;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -210,11 +200,14 @@ public class EasyStateView extends FrameLayout {
             showAlpha(state, showView, currentView);
         } else {
             currentView.setVisibility(GONE);
-            if(showView.getAlpha() == 0){
+            if (showView.getAlpha() == 0) {
                 showView.setAlpha(1f);
             }
             showView.setVisibility(VISIBLE);
             mCurrentState = state;
+            if (null != mListener) {
+                mListener.onStateChanged(state);
+            }
             isAniming = false;
         }
     }
