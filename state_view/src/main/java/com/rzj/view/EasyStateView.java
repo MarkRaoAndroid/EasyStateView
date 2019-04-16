@@ -8,7 +8,6 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +16,6 @@ import android.widget.FrameLayout;
 import com.rzj.stateview.R;
 
 public class EasyStateView extends FrameLayout {
-
-    private static final String TAG = EasyStateView.class.getSimpleName();
 
     // 内容 View
     public static final int VIEW_CONTENT = 0;
@@ -69,10 +66,9 @@ public class EasyStateView extends FrameLayout {
 
     private void init(Context context, AttributeSet attrs) {
         mContext = context;
-        Log.e(TAG , String.valueOf(hashCode()));
+        mViews = new SparseArray<>();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.EasyStateView);
         mCurrentState = typedArray.getInt(R.styleable.EasyStateView_esv_viewState, VIEW_CONTENT);
-        mViews = new SparseArray<>();
         int emptyResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_emptyView, VIEW_TAG);
         if (emptyResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(emptyResId, this, false);
@@ -102,18 +98,6 @@ public class EasyStateView extends FrameLayout {
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        Log.e(TAG, "onAttachedToWindow");
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        Log.e(TAG, "onFinishInflate");
-    }
-
-    @Override
     public void addView(View child) {
         addContentV(child);
         super.addView(child);
@@ -136,7 +120,7 @@ public class EasyStateView extends FrameLayout {
 
     private void addViewToHash(View child, int viewTag) {
         child.setTag(viewTag);
-        if(viewTag != mCurrentState){
+        if (viewTag != mCurrentState) {
             child.setVisibility(GONE);
         }
         mViews.put(viewTag, child);
@@ -178,46 +162,62 @@ public class EasyStateView extends FrameLayout {
         return super.addViewInLayout(child, index, params, preventRequestLayout);
     }
 
+
     @Override
     protected Parcelable onSaveInstanceState() {
-        Log.e(TAG, "onSaveInstanceState");
         Parcelable parcelable = super.onSaveInstanceState();
-        return new SaveState(parcelable, mCurrentState);
+        int useAnim = 0;
+        if (mUseAnim) {
+            useAnim = 1;
+        }
+        return new SaveState(parcelable, mCurrentState, useAnim);
     }
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        Log.e(TAG, "onRestoreInstanceState");
         SaveState saveState = (SaveState) state;
+        if (saveState.useAnim == 1) {
+            mUseAnim = true;
+        } else {
+            mUseAnim = false;
+        }
         // 因为应用方向改变触发重绘后，重新初始化读取的 ViewState 是不准确的，所以要隐藏掉
-        if(saveState.viewState != mCurrentState){
+        if (saveState.viewState != mCurrentState) {
             getStateView(mCurrentState).setVisibility(GONE);
             setViewState(saveState.viewState);
         }
         super.onRestoreInstanceState(saveState.getSuperState());
     }
 
-    private static class SaveState extends BaseSavedState{
+    private static class SaveState extends BaseSavedState {
 
         private int viewState;
+        /**
+         * 布尔值存储居然没有api，只能存储布尔数组，故改成 int 记录
+         * 1 使用动画
+         * 2 不使用动画
+         */
+        private int useAnim;
 
         private SaveState(Parcel source) {
             super(source);
             viewState = source.readInt();
         }
 
-        private SaveState(Parcelable superState, int viewState) {
+        private SaveState(Parcelable superState, int viewState, int useAnim) {
             super(superState);
             this.viewState = viewState;
+            this.useAnim = useAnim;
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(viewState);
+            out.writeInt(useAnim);
         }
 
-        public static final Parcelable.Creator<SaveState> CREATE = new Parcelable.Creator<SaveState>(){
+        public static final Parcelable.Creator<SaveState> CREATE = new Parcelable.Creator<SaveState>() {
 
             @Override
             public SaveState createFromParcel(Parcel source) {
@@ -233,11 +233,10 @@ public class EasyStateView extends FrameLayout {
 
     /**
      * 切换默认状态的 View
-     *
      * @param state
      */
     public void setViewState(int state) {
-        if (state < VIEW_TAG) {
+        if (state <= VIEW_TAG) {
             throw new RuntimeException("ViewState 不在目标范围");
         }
         if (isAniming) {
@@ -309,7 +308,7 @@ public class EasyStateView extends FrameLayout {
     }
 
     public View getStateView(int state) {
-        if (state < VIEW_TAG) {
+        if (state <= VIEW_TAG) {
             throw new RuntimeException("ViewState 不在目标范围");
         }
         return mViews.get(state);
@@ -330,9 +329,8 @@ public class EasyStateView extends FrameLayout {
         if (null == view && layId != -1) {
             view = LayoutInflater.from(mContext).inflate(layId, this, false);
         }
-        view.setVisibility(GONE);
-        addViewInLayout(view, -1, view.getLayoutParams());
         addViewToHash(view, state);
+        addViewInLayout(view, -1, view.getLayoutParams());
     }
 
 }
