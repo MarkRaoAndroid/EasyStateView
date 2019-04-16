@@ -5,18 +5,20 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
 import com.rzj.stateview.R;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class EasyStateView extends FrameLayout {
+
+    private static final String TAG = EasyStateView.class.getSimpleName();
 
     // 内容 View
     public static final int VIEW_CONTENT = 0;
@@ -31,7 +33,7 @@ public class EasyStateView extends FrameLayout {
     // View 的 Tag 标签值
     private static final int VIEW_TAG = -5;
     // 用来存放 View
-    private HashMap<Integer, View> mViews;
+    private SparseArray<View> mViews;
     // View Tag 对应的下标缓存
     // 是否使用过渡动画
     private boolean mUseAnim;
@@ -67,9 +69,10 @@ public class EasyStateView extends FrameLayout {
 
     private void init(Context context, AttributeSet attrs) {
         mContext = context;
+        Log.e(TAG , String.valueOf(hashCode()));
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.EasyStateView);
         mCurrentState = typedArray.getInt(R.styleable.EasyStateView_esv_viewState, VIEW_CONTENT);
-        mViews = new HashMap<>();
+        mViews = new SparseArray<>();
         int emptyResId = typedArray.getResourceId(R.styleable.EasyStateView_esv_emptyView, VIEW_TAG);
         if (emptyResId != VIEW_TAG) {
             View view = LayoutInflater.from(getContext()).inflate(emptyResId, this, false);
@@ -101,11 +104,13 @@ public class EasyStateView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        for (Map.Entry<Integer, View> entry : mViews.entrySet()) {
-            if (entry.getKey() != mCurrentState) {
-                entry.getValue().setVisibility(GONE);
-            }
-        }
+        Log.e(TAG, "onAttachedToWindow");
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        Log.e(TAG, "onFinishInflate");
     }
 
     @Override
@@ -131,6 +136,9 @@ public class EasyStateView extends FrameLayout {
 
     private void addViewToHash(View child, int viewTag) {
         child.setTag(viewTag);
+        if(viewTag != mCurrentState){
+            child.setVisibility(GONE);
+        }
         mViews.put(viewTag, child);
     }
 
@@ -168,6 +176,59 @@ public class EasyStateView extends FrameLayout {
     protected boolean addViewInLayout(View child, int index, ViewGroup.LayoutParams params, boolean preventRequestLayout) {
         addContentV(child);
         return super.addViewInLayout(child, index, params, preventRequestLayout);
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Log.e(TAG, "onSaveInstanceState");
+        Parcelable parcelable = super.onSaveInstanceState();
+        return new SaveState(parcelable, mCurrentState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        Log.e(TAG, "onRestoreInstanceState");
+        SaveState saveState = (SaveState) state;
+        // 因为应用方向改变触发重绘后，重新初始化读取的 ViewState 是不准确的，所以要隐藏掉
+        if(saveState.viewState != mCurrentState){
+            getStateView(mCurrentState).setVisibility(GONE);
+            setViewState(saveState.viewState);
+        }
+        super.onRestoreInstanceState(saveState.getSuperState());
+    }
+
+    private static class SaveState extends BaseSavedState{
+
+        private int viewState;
+
+        private SaveState(Parcel source) {
+            super(source);
+            viewState = source.readInt();
+        }
+
+        private SaveState(Parcelable superState, int viewState) {
+            super(superState);
+            this.viewState = viewState;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(viewState);
+        }
+
+        public static final Parcelable.Creator<SaveState> CREATE = new Parcelable.Creator<SaveState>(){
+
+            @Override
+            public SaveState createFromParcel(Parcel source) {
+                return new SaveState(source);
+            }
+
+            @Override
+            public SaveState[] newArray(int size) {
+                return new SaveState[size];
+            }
+        };
     }
 
     /**
