@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
 
     private com.rzj.view.EasyStateView mStateView;
     private Button mBtn;
+    private Button mLoadingBtn;
     private Spinner mSpinner;
     private RadioGroup mRadioAnimation;
     private int mStateId;
@@ -36,9 +38,22 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
         mBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mStateView.setViewState(mStateId);
+                mStateView.showViewState(mStateId);
             }
         });
+        mLoadingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mStateView.afterLoadingState(mStateId);
+            }
+        });
+        mStateView.getStateView(DLRB).findViewById(R.id.iv_dlrb)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(MainActivity.this, "迪丽热巴被点击", Toast.LENGTH_SHORT).show();
+                    }
+                });
         mRadioAnimation.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -50,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
             }
         });
         //适配器
-        ArrayAdapter arrAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
+        ArrayAdapter arrAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
                 getResources().getStringArray(R.array.spinner));
         //设置样式
         arrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -92,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
 
     private void initViews() {
         mBtn = findViewById(R.id.btn_view_state);
+        mLoadingBtn = findViewById(R.id.btn_after_loading);
         mSpinner = findViewById(R.id.spinner_state_view);
         mStateView = findViewById(R.id.state_view);
         mRadioAnimation = findViewById(R.id.radio_animation);
@@ -104,6 +120,6 @@ public class MainActivity extends AppCompatActivity implements EasyStateView.Sta
 
     @Override
     public void onStateChanged(int state) {
-        Toast.makeText(MainActivity.this, String.valueOf(state), Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, String.valueOf(state), Toast.LENGTH_SHORT).show();
     }
 }

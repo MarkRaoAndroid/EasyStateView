@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
 import com.rzj.stateview.R;
 
 public class EasyStateView extends FrameLayout {
@@ -31,7 +32,6 @@ public class EasyStateView extends FrameLayout {
     private static final int VIEW_TAG = -5;
     // 用来存放 View
     private SparseArray<View> mViews;
-    // View Tag 对应的下标缓存
     // 是否使用过渡动画
     private boolean mUseAnim;
     // 是否处于动画中
@@ -184,7 +184,7 @@ public class EasyStateView extends FrameLayout {
         // 因为应用方向改变触发重绘后，重新初始化读取的 ViewState 是不准确的，所以要隐藏掉
         if (saveState.viewState != mCurrentState) {
             getStateView(mCurrentState).setVisibility(GONE);
-            setViewState(saveState.viewState);
+            showViewState(saveState.viewState);
         }
         super.onRestoreInstanceState(saveState.getSuperState());
     }
@@ -233,46 +233,89 @@ public class EasyStateView extends FrameLayout {
 
     /**
      * 切换默认状态的 View
+     *
      * @param state
      */
-    public void setViewState(int state) {
+    public void showViewState(int state) {
+        if (!checkState(state)) {
+            showViewAnim(state, VIEW_TAG);
+        }
+    }
+
+    /**
+     * 切换 view 时用 loading view 过渡
+     *
+     * @param state
+     */
+    public void afterLoadingState(int state) {
+        if (!checkState(state)) {
+            if (mCurrentState == VIEW_LOADING) {
+                showViewAnim(state, VIEW_TAG);
+            } else {
+                showViewAnim(VIEW_LOADING, state);
+            }
+        }
+    }
+
+    /**
+     * 检查状态是否合法
+     * true 表示不合法，不往下执行
+     * false 表示该状态和当前状态不同，并合法数值状态
+     *
+     * @param state
+     * @return
+     */
+    private boolean checkState(int state) {
         if (state <= VIEW_TAG) {
             throw new RuntimeException("ViewState 不在目标范围");
         }
-        if (isAniming) {
-            return;
+        if (state == mCurrentState) {
+            return true;
+        } else if (isAniming) {
+            return true;
         }
-        showViewAnim(state);
+        return false;
     }
 
     public void setUseAnim(boolean useAnim) {
         this.mUseAnim = useAnim;
     }
 
-    private void showViewAnim(int state) {
-        View showView = getStateView(state);
-        if (null == showView || state == mCurrentState) {
+    private void showViewAnim(int showState, int afterState) {
+        if (!isAniming) {
+            isAniming = true;
+        }
+        View showView = getStateView(showState);
+        if (null == showView) {
+            isAniming = false;
             return;
         }
-        isAniming = true;
         View currentView = getStateView(mCurrentState);
         if (mUseAnim) {
-            showAlpha(state, showView, currentView);
+            showAlpha(showState, afterState, showView, currentView);
         } else {
             currentView.setVisibility(GONE);
             if (showView.getAlpha() == 0) {
                 showView.setAlpha(1f);
             }
             showView.setVisibility(VISIBLE);
-            mCurrentState = state;
+            mCurrentState = showState;
             if (null != mListener) {
-                mListener.onStateChanged(state);
+                mListener.onStateChanged(showState);
             }
             isAniming = false;
         }
     }
 
-    private void showAlpha(final int state, final View showView,
+    /**
+     * 参数依次为：显示的状态、显示之后的状态码、要显示的 View、当前的 View
+     *
+     * @param showState
+     * @param afterState
+     * @param showView
+     * @param currentView
+     */
+    private void showAlpha(final int showState, final int afterState, final View showView,
                            final View currentView) {
         ObjectAnimator currentAnim = ObjectAnimator.ofFloat(currentView, "alpha", 1, 0);
         currentAnim.setDuration(250L);
@@ -284,9 +327,13 @@ public class EasyStateView extends FrameLayout {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 if (null != mListener) {
-                    mListener.onStateChanged(state);
+                    mListener.onStateChanged(showState);
                 }
-                isAniming = false;
+                if (afterState != VIEW_TAG) {
+                    showViewAnim(afterState, VIEW_TAG);
+                } else {
+                    isAniming = false;
+                }
             }
         });
         currentAnim.addListener(new AnimatorListenerAdapter() {
@@ -297,7 +344,7 @@ public class EasyStateView extends FrameLayout {
                 currentView.setVisibility(GONE);
                 showView.setVisibility(VISIBLE);
                 showAnim.start();
-                mCurrentState = state;
+                mCurrentState = showState;
             }
         });
         currentAnim.start();

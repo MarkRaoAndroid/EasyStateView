@@ -47,6 +47,11 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:text="切换状态" />
+    <Button
+        android:id="@+id/btn_after_loading"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Loading过渡切换状态" />
     <com.rzj.view.EasyStateView
         android:id="@+id/state_view"
         android:layout_width="match_parent"
