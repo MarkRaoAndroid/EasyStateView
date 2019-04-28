@@ -1,5 +1,5 @@
-[![OSL](https://gss2.bdstatic.com/-fo3dSag_xI4khGkpoWK1HF6hhy/baike/s%3D500/sign=f568d2e4f91fbe09185ec3145b610c30/5882b2b7d0a20cf4bf0e134d7d094b36adaf9982.jpg)](https://www.jianshu.com/u/a5102f480695)
-#### 点击热巴进入我的博客
+[![OSL](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1556448028308&di=1d6fed0a3d0722675c0afcf58288dfbd&imgtype=0&src=http%3A%2F%2Fdevelopers.oxwall.com%2Fow_userfiles%2Fthemes%2Ftheme_image_6.png)](https://www.jianshu.com/u/a5102f480695)
+#### 点击上方图片进入我的博客
 
 # EasyStateView
 
