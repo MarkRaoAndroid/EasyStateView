@@ -3,6 +3,26 @@
 
 # EasyStateView
 
+To get a Git project into your build:
+
+Step 1. Add the JitPack repository to your build file
+Add it in your root build.gradle at the end of repositories:
+
+```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://www.jitpack.io' }
+		}
+}
+```
+Step 2. Add the dependency
+```
+dependencies {
+	        implementation 'com.github.MarkRaoAndroid:EasyStateView:latest release'
+}
+```
+
 ![Image text](https://upload-images.jianshu.io/upload_images/3027456-cbc32b9ffcd7f193.gif?imageMogr2/auto-orient/strip)
 ## 控件使用示例
 ```
