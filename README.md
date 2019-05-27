@@ -3,6 +3,8 @@
 
 # EasyStateView
 
+[![](https://www.jitpack.io/v/MarkRaoAndroid/EasyStateView.svg)](https://www.jitpack.io/#MarkRaoAndroid/EasyStateView)
+
 To get a Git project into your build:
 
 Step 1. Add the JitPack repository to your build file
